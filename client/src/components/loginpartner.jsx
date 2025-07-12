@@ -37,7 +37,7 @@ const LoginDelivery = () => {
 
       if (response.data) {
         localStorage.clear(); 
-        localStorage.setItem("userId", response.data.middleman._id);
+        localStorage.setItem("middlemanId", response.data.middleman._id);
         localStorage.setItem("isLoggedIn", "true");
         navigate("/partner-dashboard");
       } else {

@@ -49,7 +49,7 @@ const PartnerDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
-
+  const middlemanId = localStorage.getItem("middlemanId");
   // Fetch available jobs
   useEffect(() => {
     axios
@@ -139,61 +139,63 @@ const PartnerDashboard = () => {
                     </Box>
                   ) : (
                     <Grid container spacing={3} sx={{ p: 3 }}>
-                      {availableJobs.map((job) => (
-                        <Grid item xs={12} sm={6} md={4} key={job._id}>
-                          <Paper elevation={3} sx={{ p: 3, borderRadius: 3, height: '100%' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                              <Typography variant="h6" fontWeight={600} color="primary.main">
-                                {job.user?.fullName || 'Client'}
-                              </Typography>
-                              <Chip 
-                                label={job.status} 
-                                color={getStatusColor(job.status)}
-                                size="small"
-                              />
-                            </Box>
-                            
-                            <Box sx={{ mb: 2 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                <Scale sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                                <Typography variant="body2" color="text.secondary">
-                                  {job.quantity} kg {job.type}
+                      {availableJobs.map((userGroup) => (
+                        userGroup.items.map((item) => (
+                          <Grid item xs={12} sm={6} md={4} key={item._id}>
+                            <Paper elevation={3} sx={{ p: 3, borderRadius: 3, height: '100%' }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                <Typography variant="h6" fontWeight={600} color="primary.main">
+                                  {userGroup.userName || 'Client'}
                                 </Typography>
+                                <Chip 
+                                  label={item.status} 
+                                  color={getStatusColor(item.status)}
+                                  size="small"
+                                />
                               </Box>
                               
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                <AttachMoney sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                                <Typography variant="body2" color="text.secondary">
-                                  ${(job.quantity * job.price).toFixed(2)}
-                                </Typography>
+                              <Box sx={{ mb: 2 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <Scale sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                                  <Typography variant="body2" color="text.secondary">
+                                    {item.quantity} kg {item.type}
+                                  </Typography>
+                                </Box>
+                                
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <AttachMoney sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                                  <Typography variant="body2" color="text.secondary">
+                                    ${(item.quantity * 0.5).toFixed(2)} {/* Fixed price per kg */}
+                                  </Typography>
+                                </Box>
+                                
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                  <Schedule sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                                  <Typography variant="body2" color="text.secondary">
+                                    {item.scheduledDate ? new Date(item.scheduledDate).toLocaleDateString() : 'No date set'}
+                                  </Typography>
+                                </Box>
                               </Box>
                               
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                <Schedule sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                                <Typography variant="body2" color="text.secondary">
-                                  {new Date(job.scheduledDate).toLocaleDateString()}
-                                </Typography>
-                              </Box>
-                            </Box>
-                            
-                            <Button
-                              fullWidth
-                              variant="contained"
-                              size="medium"
-                              onClick={() => {
-                                setSelectedItem(job);
-                                setShowModal(true);
-                              }}
-                              sx={{ 
-                                fontWeight: 600,
-                                bgcolor: 'primary.main',
-                                '&:hover': { bgcolor: 'primary.dark' }
-                              }}
-                            >
-                              Accept Job
-                            </Button>
-                          </Paper>
-                        </Grid>
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                size="medium"
+                                onClick={() => {
+                                  setSelectedItem({...item, userName: userGroup.userName});
+                                  setShowModal(true);
+                                }}
+                                sx={{ 
+                                  fontWeight: 600,
+                                  bgcolor: 'primary.main',
+                                  '&:hover': { bgcolor: 'primary.dark' }
+                                }}
+                              >
+                                Accept Job
+                              </Button>
+                            </Paper>
+                          </Grid>
+                        ))
                       ))}
                     </Grid>
                   )}
@@ -222,19 +224,24 @@ const PartnerDashboard = () => {
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
-                    {availableJobs.map((job) => (
-                      <Marker key={job._id} position={[job.lat, job.long]}>
-                        <Popup>
-                          <Box>
-                            <Typography variant="subtitle2" fontWeight={600}>
-                              {job.type} - {job.quantity}kg
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              ${(job.quantity * job.price).toFixed(2)}
-                            </Typography>
-                          </Box>
-                        </Popup>
-                      </Marker>
+                    {availableJobs.map((userGroup) => (
+                      userGroup.items.map((item) => (
+                        <Marker key={item._id} position={[item.location.lat, item.location.long]}>
+                          <Popup>
+                            <Box>
+                              <Typography variant="subtitle2" fontWeight={600}>
+                                {item.type} - {item.quantity}kg
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                ${(item.quantity * 0.5).toFixed(2)}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Client: {userGroup.userName}
+                              </Typography>
+                            </Box>
+                          </Popup>
+                        </Marker>
+                      ))
                     ))}
                   </MapContainer>
                 </Box>
@@ -262,10 +269,13 @@ const PartnerDashboard = () => {
                   {selectedItem.type} - {selectedItem.quantity}kg
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Scheduled: {new Date(selectedItem.scheduledDate).toLocaleDateString()}
+                  Client: {selectedItem.userName}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Value: ${(selectedItem.quantity * selectedItem.price).toFixed(2)}
+                  Scheduled: {selectedItem.scheduledDate ? new Date(selectedItem.scheduledDate).toLocaleDateString() : 'No date set'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Value: ${(selectedItem.quantity * 0.5).toFixed(2)}
                 </Typography>
               </Box>
             </Box>
@@ -274,7 +284,7 @@ const PartnerDashboard = () => {
         <DialogActions>
           <Button onClick={() => setShowModal(false)}>Cancel</Button>
           <Button
-            onClick={() => assignItem("67bc5864afb8c019a8581a75", selectedItem?._id)}
+            onClick={() => assignItem(middlemanId, selectedItem?._id)}
             variant="contained"
             disabled={loading}
             sx={{ fontWeight: 600 }}
