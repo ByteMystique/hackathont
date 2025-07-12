@@ -1,15 +1,32 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Import Axios
-import "./loginclient.css";
+import { 
+  Container, 
+  Box, 
+  Typography, 
+  TextField, 
+  Button, 
+  Card, 
+  CardContent, 
+  AppBar, 
+  Toolbar,
+  Alert,
+  Fade
+} from '@mui/material';
+import { Person, Lock, ArrowBack } from '@mui/icons-material';
+import axios from "axios";
 
 const LoginClient = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
       const response = await axios.post("http://localhost:3000/api/login", {
@@ -23,56 +40,110 @@ const LoginClient = () => {
 
         if (user) {
           localStorage.clear();
-          localStorage.setItem("userId", user._id); // Store user ID
+          localStorage.setItem("userId", user._id);
           localStorage.setItem("role", "user");
           navigate("/client-dashboard");
         } else if (middleman) {
-          localStorage.setItem("userId", middleman._id); // Store middleman ID
+          localStorage.setItem("userId", middleman._id);
           localStorage.setItem("role", "middleman");
           navigate("/middleman-dashboard");
         }
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed. Please try again.");
+      setError(error.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <header className="home-header">
-        <nav className="home-nav">
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-          </ul>
-        </nav>
-        <p>
-          Don't have an account? <Link to="/client-signup">Sign Up</Link>
-        </p>
-      </header>
+    <Box minHeight="100vh" bgcolor="background.default">
+      <AppBar position="static" color="primary" elevation={0}>
+        <Toolbar>
+          <Button 
+            component={Link} 
+            to="/" 
+            startIcon={<ArrowBack />} 
+            color="inherit" 
+            sx={{ fontWeight: 600 }}
+          >
+            Home
+          </Button>
+          <Box sx={{ flexGrow: 1 }} />
+          <Typography variant="body2" color="inherit">
+            Don't have an account? <Link to="/client-signup" style={{ color: '#fff', textDecoration: 'none', fontWeight: 600 }}>Sign Up</Link>
+          </Typography>
+        </Toolbar>
+      </AppBar>
 
-      <div className="login-container">
-        <h2>Client Login</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit">Login</button>
-        </form>
-      </div>
-    </>
+      <Container maxWidth="sm" sx={{ py: 8 }}>
+        <Fade in timeout={800}>
+          <Card elevation={8} sx={{ borderRadius: 4, overflow: 'hidden' }}>
+            <Box sx={{ bgcolor: 'primary.main', p: 3, textAlign: 'center' }}>
+              <Typography variant="h4" fontWeight={700} color="white">
+                Client Login
+              </Typography>
+              <Typography variant="body1" color="white" sx={{ opacity: 0.9, mt: 1 }}>
+                Welcome back! Sign in to your account
+              </Typography>
+            </Box>
+            <CardContent sx={{ p: 4 }}>
+              {error && (
+                <Alert severity="error" sx={{ mb: 3 }}>
+                  {error}
+                </Alert>
+              )}
+              
+              <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Phone Number"
+                  variant="outlined"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  sx={{ mb: 3 }}
+                  InputProps={{
+                    startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                />
+                
+                <TextField
+                  fullWidth
+                  label="Password"
+                  type="password"
+                  variant="outlined"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  sx={{ mb: 4 }}
+                  InputProps={{
+                    startAdornment: <Lock sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                />
+                
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  sx={{ 
+                    py: 1.5, 
+                    fontSize: 16, 
+                    fontWeight: 600,
+                    bgcolor: 'primary.main',
+                    '&:hover': { bgcolor: 'primary.dark' }
+                  }}
+                >
+                  {loading ? 'Signing In...' : 'Sign In'}
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Fade>
+      </Container>
+    </Box>
   );
 };
 

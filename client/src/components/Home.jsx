@@ -1,61 +1,81 @@
 import React from 'react';
+import { AppBar, Toolbar, Typography, Button, Container, Box, Card, CardContent, Grid, Fade } from '@mui/material';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import GroupsIcon from '@mui/icons-material/Groups';
 import { Link } from 'react-router-dom';
-import './home.css'; // Import the CSS file for styling
+
+const features = [
+  {
+    icon: <RecyclingIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
+    title: 'Eco-Friendly',
+    desc: 'Committed to reducing environmental impact with sustainable practices.'
+  },
+  {
+    icon: <LocalShippingIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
+    title: 'Fast Delivery',
+    desc: 'Efficient service ensuring timely recycling pickups and deliveries.'
+  },
+  {
+    icon: <GroupsIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
+    title: 'Community Focused',
+    desc: 'Empowering local communities through innovative recycling solutions.'
+  }
+];
 
 const Home = () => {
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <div className="logo">
-          <h1>GreenCycle Express</h1>
-        </div>
-        <nav className="home-nav">
-          <ul>
-            <li>
-              <Link to="/client-login">Client Login</Link>
-            </li>
-            <li>
-              <Link to="/delivery-login">Partner Login</Link>
-            </li>
-          </ul>
-        </nav>
-      </header>
-
-      <main className="home-main">
-        <section className="hero">
-          <h2>Delivering a Sustainable Future</h2>
-          <p>
-            At GreenCycle Express, we connect communities with reliable recycling services.
-            Experience eco-friendly delivery that transforms waste into opportunity.
-          </p>
-          <Link to="/" className="btn">
-            Discover Our Services
-          </Link>
-        </section>
-
-        <section className="features">
-          <div className="feature">
-            <i className="fas fa-recycle"></i>
-            <h3>Eco-Friendly</h3>
-            <p>Committed to reducing environmental impact with sustainable practices.</p>
-          </div>
-          <div className="feature">
-            <i className="fas fa-truck"></i>
-            <h3>Fast Delivery</h3>
-            <p>Efficient service ensuring timely recycling pickups and deliveries.</p>
-          </div>
-          <div className="feature">
-            <i className="fas fa-users"></i>
-            <h3>Community Focused</h3>
-            <p>Empowering local communities through innovative recycling solutions.</p>
-          </div>
-        </section>
-      </main>
-
-      <footer className="home-footer">
-        <p>&copy; {new Date().getFullYear()} GreenCycle Express. All rights reserved.</p>
-      </footer>
-    </div>
+    <Box minHeight="100vh" display="flex" flexDirection="column" bgcolor="background.default">
+      <AppBar position="static" color="primary" elevation={0}>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          <Typography variant="h5" fontWeight={800} fontFamily="Montserrat" color="#fff">
+            GreenCycle Express
+          </Typography>
+          <Box>
+            <Button component={Link} to="/client-login" color="inherit" sx={{ fontWeight: 600, mx: 1 }}>Client Login</Button>
+            <Button component={Link} to="/delivery-login" color="inherit" sx={{ fontWeight: 600, mx: 1 }}>Partner Login</Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="md" sx={{ flex: 1, py: 8 }}>
+        <Fade in timeout={1200}>
+          <Box textAlign="center" mb={8}>
+            <Typography variant="h2" fontWeight={800} color="primary.main" gutterBottom>
+              Delivering a Sustainable Future
+            </Typography>
+            <Typography variant="h5" color="text.secondary" mb={4}>
+              At GreenCycle Express, we connect communities with reliable recycling services.<br/>
+              Experience eco-friendly delivery that transforms waste into opportunity.
+            </Typography>
+            <Button component={Link} to="/" variant="contained" size="large" color="secondary" sx={{ borderRadius: 25, px: 5, fontWeight: 700, fontSize: 18, boxShadow: 3 }}>
+              Discover Our Services
+            </Button>
+          </Box>
+        </Fade>
+        <Grid container spacing={4} justifyContent="center">
+          {features.map((feature, idx) => (
+            <Grid item xs={12} sm={6} md={4} key={feature.title}>
+              <Fade in timeout={1000 + idx * 400}>
+                <Card elevation={3} sx={{ borderRadius: 4, minHeight: 220, transition: 'transform 0.3s', '&:hover': { transform: 'translateY(-8px)' } }}>
+                  <CardContent sx={{ textAlign: 'center' }}>
+                    {feature.icon}
+                    <Typography variant="h6" fontWeight={700} mt={2} mb={1} color="primary.main">
+                      {feature.title}
+                    </Typography>
+                    <Typography color="text.secondary">{feature.desc}</Typography>
+                  </CardContent>
+                </Card>
+              </Fade>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+      <Box component="footer" py={3} bgcolor="primary.main" textAlign="center">
+        <Typography color="#fff" fontWeight={500}>
+          &copy; {new Date().getFullYear()} GreenCycle Express. All rights reserved.
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 
